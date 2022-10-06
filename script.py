@@ -101,4 +101,4 @@ for d in range(1,29):
             writer.writeheader()
             writer.writerows(bldList)
     print(f"District D{d:02d} stored in csv!")
-    break
+    #break
