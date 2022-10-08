@@ -3,6 +3,7 @@ from datetime import datetime
 from selenium import webdriver # pip install selenium
 from webdriver_manager.chrome import ChromeDriverManager # pip install webdriver-manager
 from time import sleep
+from pathlib import Path
 import re
 import csv
 
@@ -10,6 +11,9 @@ driver = webdriver.Chrome(ChromeDriverManager().install()) #might take a while o
 baseUrl = "https://www.propertyguru.com.sg"
 knownBldType=["Apartment","Condominium","Walk-up Apartment","Cluster House","Executive Condominum","Detached House","Semi-Detached House","Corner Terrace","Bungalow House","Good Class Bungalow","Shophouse","Land Only","Town House","Terraced House","HDB Flat"]
 #D01-D28
+month = datetime.now().strftime("%m")
+year = datetime.now().strftime("%Y")
+day = datetime.now().strftime("%d")
 for d in range(1,29):
     print(f"Scanning D{d:02d}")
     url = f"https://www.propertyguru.com.sg/property-for-rent?market=residential&listing_type=rent&district_code[]=D{d:02d}&search=true"
@@ -79,6 +83,7 @@ for d in range(1,29):
             now = datetime.now()
             date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
             bldList.append({
+                'bldID'       :bldDiv['data-listing-id'],
                 'BldLink'     :bldLink,
                 'BldName'     :bldName, #or listing name
                 'BldAddress'  :bldAddress,
@@ -96,7 +101,9 @@ for d in range(1,29):
         url=baseUrl+next_page.a['href']
     #print(bldList)
     if len(bldList)>0:
-        with open(f'data\PropGuru_raw_D{d:02d}.csv', 'w' , encoding='utf-8') as csvfile:
+        #create folder per day
+        Path(f"data\{year}\{month}\{day}").mkdir(parents=True, exist_ok=True)
+        with open(f'data\{year}\{month}\{day}\PropGuru_raw_D{d:02d}.csv', 'w' , encoding='utf-8') as csvfile:
             writer = csv.DictWriter(csvfile,fieldnames=bldList[0].keys())
             writer.writeheader()
             writer.writerows(bldList)
